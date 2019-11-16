@@ -4,12 +4,45 @@
 #include <iostream>
 #include <cstring>
 #include <string.h>
+#include <regex>
+
+//---------------------------- helper functions ----------------------------------------------
 
 #define watch(x) #x
+
+
 void showToken(const char * token_name, int num_line)
 {
     printf("%d %s %s\n", num_line, token_name, yytext);
 }
+
+std::string replace(std::string string, std::string src, std::string dst){
+    std::string::size_type len = 0;
+    while ((len = string.find(src, len)) != std::string::npos)
+    {
+        string.replace(len, src.size(), dst);
+        len += dst.size();
+    }
+    return string;
+}
+
+void handle_strings(int num_line){
+    //remove " ":
+    char new_string[strlen(yytext)-2];
+    memcpy( new_string, &yytext[1], strlen(yytext)-2);
+    new_string[strlen(yytext)-2] = '\0';
+
+    //remove escapes:
+    std::string new_string_2(new_string);
+    new_string_2 = replace(new_string_2, "\\n", "\x0A");
+    new_string_2 = replace(new_string_2, "\\\"", "\"");
+    new_string_2 = replace(new_string_2, "\\\\", "\\");
+    std::cout << num_line << " STRING " << new_string_2 << std::endl;
+
+
+}
+
+//---------------------------- my parser ----------------------------------------------
 
 
 int main()
@@ -76,10 +109,7 @@ int main()
         }else if (token == NUM) {
             showToken("NUM", num_line);
         }else if (token == STRING) {
-            char new_string[strlen(yytext)-2]; //in order to remove " ".
-            memcpy( new_string, &yytext[1], strlen(yytext)-2);
-            new_string[strlen(yytext)-2] = '\0';
-            printf("%d STRING %s\n", num_line, new_string);
+            handle_strings(num_line);
         }else {
             printf("Error &s\n", token);
         }
