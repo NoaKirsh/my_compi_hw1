@@ -11,9 +11,9 @@
 #define watch(x) #x
 
 
-void showToken(const char * token_name, int num_line)
+void showToken(const char * token_name)
 {
-    printf("%d %s %s\n", num_line, token_name, yytext);
+    printf("%d %s %s\n", yylineno, token_name, yytext);
 }
 
 std::string replace(std::string string, std::string src, std::string dst){
@@ -167,13 +167,22 @@ std::string handle_hex(std::string str){
     return str;
 }
 
-//    for(int i = 0; i <= 0xFF; i++) {
-//        printf("%d\n", i);
-//        std::string i_str = std::to_string(i);
-//        str = replace(str, i_str, i);
-//    }
+void handle_undefined_escape(std::string str){
+    int size = str.size();
+    for(std::string::size_type i = 0; i < size; ++i) {
+        if (str[i] == '\\') {
+            if (str[i + 1] == 'x') {
+                if (!('a' < str[i + 2] && str[i + 2] < 'f') && !('A' < str[i + 2] && str[i + 2] < 'F') &&
+                    !('0' < str[i + 2] && str[i + 2] < '9') && !('a' < str[i + 2] && str[i + 2] < 'f') &&
+                    !('A' < str[i + 2] && str[i + 2] < 'F') && !('0' < str[i + 2] && str[i + 2] < '9')) {
+                    printf("Error undefined escape sequence %s\n", str.substr(i, i + 2));
+                }
+            }
+        }
+    }
+}
 
-void handle_strings(int num_line){
+void handle_strings(){
     //remove " ":
     char new_string[strlen(yytext)-2];
     memcpy( new_string, &yytext[1], strlen(yytext)-2);
@@ -188,7 +197,8 @@ void handle_strings(int num_line){
     new_string_2 = replace(new_string_2, "\\r", "\x0D");
     new_string_2 = replace(new_string_2, "\\\"", "\"");
 
-    std::cout << num_line << " STRING " << new_string_2 << std::endl;
+    handle_undefined_escape(new_string_2);
+    std::cout << yylineno << " STRING " << new_string_2 << std::endl;
 }
 
 //---------------------------- my parser ----------------------------------------------
@@ -196,69 +206,66 @@ void handle_strings(int num_line){
 
 int main()
 {
-    int num_line = 1;
     int token;
     while(token = yylex()) {
-        if (token == 30) { // \n
-            num_line++;
-        }else if (token == VOID) {
-            showToken("VOID", num_line);
+        if (token == VOID) {
+            showToken("VOID");
         }else if (token == INT) {
-            showToken("INT", num_line);
+            showToken("INT");
         }else if (token == BYTE) {
-            showToken("BYTE", num_line);
+            showToken("BYTE");
         }else if (token == B) {
-            showToken("B", num_line);
+            showToken("B");
         }else if (token == BOOL) {
-            showToken("BOOL", num_line);
+            showToken("BOOL");
         }else if (token == AND) {
-            showToken("AND", num_line);
+            showToken("AND");
         }else if (token == OR) {
-            showToken("OR", num_line);
+            showToken("OR");
         }else if (token == NOT) {
-            showToken("NOT", num_line);
+            showToken("NOT");
         }else if (token == TRUE) {
-            showToken("TRUE", num_line);
+            showToken("TRUE");
         }else if (token == FALSE) {
-            showToken("FALSE", num_line);
+            showToken("FALSE");
         }else if (token == RETURN) {
-            showToken("RETURN", num_line);
+            showToken("RETURN");
         }else if (token == IF) {
-            showToken("IF", num_line);
+            showToken("IF");
         }else if (token == ELSE) {
-            showToken("ELSE", num_line);
+            showToken("ELSE");
         }else if (token == WHILE) {
-            showToken("WHILE", num_line);
+            showToken("WHILE");
         }else if (token == BREAK) {
-            showToken("BREAK", num_line);
+            showToken("BREAK");
         }else if (token == CONTINUE) {
-            showToken("CONTINUE", num_line);
+            showToken("CONTINUE");
         }else if (token == SC) {
-            showToken("SC", num_line);
+            showToken("SC");
         }else if (token == COMMA) {
-            showToken("COMMA", num_line);
+            showToken("COMMA");
         }else if (token == LPAREN) {
-            showToken("LPAREN", num_line);
+            showToken("LPAREN");
         }else if (token == RPAREN) {
-            showToken("RPAREN", num_line);
+            showToken("RPAREN");
         }else if (token == LBRACE) {
-            showToken("LBRACE", num_line);
+            showToken("LBRACE");
         }else if (token == RBRACE) {
-            showToken("RBRACE", num_line);
+            showToken("RBRACE");
         }else if (token == ASSIGN) {
-            showToken("ASSIGN", num_line);
+            showToken("ASSIGN");
         }else if (token == RELOP) {
-            showToken("RELOP", num_line);
+            showToken("RELOP");
         }else if (token == BINOP) {
-            showToken("BINOP", num_line);
+            showToken("BINOP");
         }else if (token == COMMENT) {
-            printf("%d COMMENT //\n", num_line);
+            printf("%d COMMENT //\n", yylineno);
         }else if (token == ID) {
-            showToken("ID", num_line);
+            showToken("ID");
         }else if (token == NUM) {
-            showToken("NUM", num_line);
+            showToken("NUM");
         }else if (token == STRING) {
-            handle_strings(num_line);
+            handle_strings();
         }
     }
     return 0;

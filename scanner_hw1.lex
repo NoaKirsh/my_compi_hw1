@@ -14,14 +14,13 @@ whitespace		([ \n\t\r])
 relop			(==|!=|<|>|<=|>=)
 binop			([*+-/])
 escapehex		(\\x[0-9][0-9a-fA-F])
-escapechar		(\\[\"nrt0{escapehex}])
+escapechar		(\\[\"nrt0])
 stringchar		([\x00-\x09\x0b-\x0c\x0e-\x21\x23-\x5b\x5d-\x7f])
 idchar			([0-9a-zA-Z])
 comment_start   ([//])
 
 %%
 
-\n                                              return 30;
 {whitespace}                                    ;
 void    										return VOID;
 int												return INT;
