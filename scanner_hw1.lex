@@ -51,7 +51,8 @@ continue    									return CONTINUE;
 {comment_start}[^\x0a|\x0d|\x0d\x0a)].*			return COMMENT;
 {letter}{idchar}*								return ID;
 ([1-9]{digit}*|[0])				    			return NUM;
-\"({escapehex}|{stringchar}|{escapechar})*\"	return STRING;
+\"({escapehex}|{stringchar}|{escapechar}|[\\])*\"	return STRING;
+.	                                            printf("Error %s\n", yytext); exit(0);
 
 %%
 

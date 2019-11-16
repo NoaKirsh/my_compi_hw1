@@ -4,36 +4,15 @@
 
 #define watch(x) #x
 
-std::string replace(std::string string, std::string src, std::string dst){
-    std::string::size_type n = 0;
-    while ((n = string.find(src, n)) != std::string::npos)
-    {
-        string.replace( n, src.size(), dst);
-        n += dst.size();
+std::string handle_hex(std::string str) {
+    for (int i = 0; i <= 0xFF; i++) {
+        printf("%x\n", i);
+        std::string i_str = std::to_string(i);
+//        str = replace(str.begin(), str.end(), i_str, i);
     }
-    return string;
 }
 
-
-
-int main_yy() {
-
-//    std::string string("Hello \\x57orld!\\r\\nThis\\tis\\t\\x63oo\\x6C, as always");
-    std::string string("\\\"");
-    std::cout << "\\\"" << std::endl;
-    std::cout << replace(string, "\\\"", "\"");
-
-
-//    char* str = "Hello \x57orld!\r\nThis\tis\t\x63oo\x6C, as always";
-//    std::string new_str = std::string(str);
-////    std::cout << str << std::endl;
-//    std::cout << new_str << std::endl;
-//    printf("Hello \x57orld!\r\nThis\tis\t\x63oo\x6C, as always", new_str);
-//
-//    replace(new_str, "\\", "\\\\");
-//    std::cout << new_str << std::endl;
-
-//    std::cout << "Hello \x57orld!\r\nThis\tis\t\x63oo\x6C, as always" << std::endl; //given
-//    std::cout << "Hello \\x57orld!\\r\\nThis\\tis\\t\\x63oo\\x6C, as always" << std::endl; // expected
-    return 0;
+int maisn() {
+    std::string s = "Hello \\x57orld!\\r\\nThis\\tis\\t\\x63oo\\x6C, as always";
+    handle_hex(s);
 }
