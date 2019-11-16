@@ -52,6 +52,7 @@ continue    									return CONTINUE;
 {letter}{idchar}*								return ID;
 ([1-9]{digit}*|[0])				    			return NUM;
 \"({escapehex}|{stringchar}|{escapechar}|[\\])*\"	return STRING;
+\"({escapehex}|{stringchar}|{escapechar}|[\\])* printf("Error unclosed string\n");
 .	                                            printf("Error %s\n", yytext); exit(0);
 
 %%
