@@ -2,6 +2,8 @@
 #include <string>
 #include <ostream>
 #include <iostream>
+#include <cstring>
+#include <string.h>
 
 #define watch(x) #x
 void showToken(const char * token_name, int num_line)
@@ -15,7 +17,7 @@ int main()
     int num_line = 1;
     int token;
     while(token = yylex()) {
-        if (token == 8) {
+        if (token == 30) { // \n
             num_line++;
         }else if (token == VOID) {
             showToken("VOID", num_line);
@@ -67,14 +69,17 @@ int main()
             showToken("RELOP", num_line);
         }else if (token == BINOP) {
             showToken("BINOP", num_line);
-//        }else if (token == COMMENT) {
-//            showToken("COMMENT", num_line);
-//        }else if (token == ID) {
-//            showToken("ID", num_line);
+        }else if (token == COMMENT) {
+            showToken("COMMENT", num_line);
+        }else if (token == ID) {
+            showToken("ID", num_line);
         }else if (token == NUM) {
             showToken("NUM", num_line);
         }else if (token == STRING) {
-            showToken("STRING", num_line);
+            char new_string[strlen(yytext)-2]; //in order to remove " ".
+            memcpy( new_string, &yytext[1], strlen(yytext)-2);
+            new_string[strlen(yytext)-2] = '\0';
+            printf("%d STRING %s\n", num_line, new_string);
         }else {
             printf("Error &s\n", token);
         }
