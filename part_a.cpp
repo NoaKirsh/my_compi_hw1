@@ -3,13 +3,9 @@
 #include <ostream>
 #include <iostream>
 #include <cstring>
-#include <string.h>
 #include <regex>
 
 //---------------------------- helper functions ----------------------------------------------
-
-#define watch(x) #x
-
 
 void showToken(const char * token_name)
 {
@@ -167,19 +163,36 @@ std::string handle_hex(std::string str){
     return str;
 }
 
-void handle_undefined_escape(std::string str){
+bool handle_undefined_escape(std::string str){
     int size = str.size();
     for(std::string::size_type i = 0; i < size; ++i) {
         if (str[i] == '\\') {
+            if(str[i + 1] == '0'){
+                std::cout << yylineno << " STRING " << str.substr(0, i) << std::endl;
+                return false;
+            }
             if (str[i + 1] == 'x') {
                 if (!('a' < str[i + 2] && str[i + 2] < 'f') && !('A' < str[i + 2] && str[i + 2] < 'F') &&
-                    !('0' < str[i + 2] && str[i + 2] < '9') && !('a' < str[i + 2] && str[i + 2] < 'f') &&
-                    !('A' < str[i + 2] && str[i + 2] < 'F') && !('0' < str[i + 2] && str[i + 2] < '9')) {
-                    printf("Error undefined escape sequence %s\n", str.substr(i, i + 2));
+                    !('0' < str[i + 2] && str[i + 2] < '9')){
+                    if (('a' < str[i + 3] && str[i + 3] < 'f') || ('A' < str[i + 3] && str[i + 3] < 'F') ||
+                    ('0' < str[i + 3] && str[i + 3] < '9') ||  str[i + 3] == '\0'){
+                        std::cout << "Error undefined escape sequence " << str.substr(i, 3) << std::endl;
+                        return false;
+                    }
+                    else{
+                        std::cout << "Error undefined escape sequence " << str.substr(i, 4) << std::endl;
+                        return false;
+                    }
                 }
+            }
+            else if (str[i + 1] != '\n' || str[i + 1] != '\t' || str[i + 1] != '\r' || str[i + 1] != '\0' ||
+                     str[i + 1] != '\"' || str[i + 1] != '\\' ){
+                std::cout << "Error undefined escape sequence " << str.substr(i, 2) << std::endl;
+                return false;
             }
         }
     }
+    return true;
 }
 
 void handle_strings(){
@@ -197,8 +210,9 @@ void handle_strings(){
     new_string_2 = replace(new_string_2, "\\r", "\x0D");
     new_string_2 = replace(new_string_2, "\\\"", "\"");
 
-    handle_undefined_escape(new_string_2);
-    std::cout << yylineno << " STRING " << new_string_2 << std::endl;
+    bool is_undefined_escape = handle_undefined_escape(new_string_2);
+    if(is_undefined_escape)
+        std::cout << yylineno << " STRING " << new_string_2 << std::endl;
 }
 
 //---------------------------- my parser ----------------------------------------------
