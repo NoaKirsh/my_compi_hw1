@@ -3,62 +3,60 @@
 #include <algorithm>
 #include <stdlib.h>
 #define watch(x) #x
-//
-//void after_backslash(std::string next_char){
-//    switch(next_char){
-//        case '\"': return "\"";
-//        case '\\': return "\\";
-//        case 'n': return "\n";
-//        case 'n': return "\n";
-//        case 'n': return "\n";
-//        case 'n': return "\n";
-//    }
-//}
+#include "tokens.hpp"
 
-int get_hex_value(char a, char b){
-    if('0' <= b && b <= '9')
-        return 16*(a-'0') + (b-'0');
-    else
-        return 16*(a-'0') + (tolower(b)-'a');
+bool in_hex_range(char tmp[3]){
+    return ('0' < tmp[0] && tmp[0] < '7') && (('0' <= tmp[1] && tmp[1] <= '9') ||
+            ('a' <= tmp[1] && tmp[1] <= 'f') || ('A' <= tmp[1] && tmp[1] <= 'F'));
 }
 
-std::string handle_hex(std::string str) {
+void handle_hex(std::string str) {
     int size = str.size();
     char buffer[size];
     int  bf_itr = 0;
-    for(std::string::size_type i = 0; i < size; i++, bf_itr++){
 
+    for(std::string::size_type i = 0; i < size; i++, bf_itr++){
         char c = str[i];
         if(str[i] == '\\') {
             c = str[++i];
-            switch (c)
+            bool hex_range;
+            switch (c) //checking what comes after \.
             {
                 case 'x':
                     char tmp[3];
                     tmp[0] = str[++i];
                     tmp[1] = str[++i];
                     tmp[2] = '\0';
-                    c = (char)strtoul(tmp, NULL, 16);
-                    break;
+                    hex_range = in_hex_range(tmp);
+                    if(hex_range) {
+                        c = (char) strtoul(tmp, NULL, 16);
+                        break;
+                    }else {
+                        std::cout << "Error undefined escape sequence " << str.substr(i-3, 4) << std::endl;
+                        return ;
+                    }
+                case '0':
+                    std::cout << yylineno << " STRING " << str.substr(0, i) << std::endl;
+                    return;
                 case 'r': c = '\r'; break;
                 case 't': c = '\t'; break;
                 case 'n': c = '\n'; break;
-                case '0': c = '\0'; break;
                 case '"': c = '\"'; break;
                 case '\\': break;
                 default: {}
-                    // TODO: Excpetion / Error
+                    std::cout << "Error undefined escape sequence " << str.substr(i-1, 2) << std::endl;
+                    return;
             }
         }
         buffer[bf_itr] = c;
     }
     buffer[bf_itr] = '\0';
-    return std::string(buffer);
+    std::cout << yylineno << " STRING " << buffer << std::endl;
 }
 
 int main() {
-    std::string s = "Hello \\x57orld!\\r\\nThis\\tis\\t\\x63oo\\x6C, as always";
-    std::cout << handle_hex(s) << std::endl;
+    std::string s = "\\x13";
+    handle_hex(s);
 //    char a = '5';
 //    char b = '7';
 //    int num = get_hex_value(a, b);

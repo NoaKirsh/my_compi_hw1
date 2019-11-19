@@ -1,2 +1,0 @@
-compile:
-g++ -std=c++11 part_a.cpp lex.yy.c
