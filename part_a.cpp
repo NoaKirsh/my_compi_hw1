@@ -21,7 +21,6 @@ void handle_hex(std::string str) {
     int size = str.size();
     char buffer[size];
     int  bf_itr = 0;
-
     for(std::string::size_type i = 0; i < size; i++, bf_itr++){
         char c = str[i];
         if(str[i] == '\\') {
@@ -38,8 +37,8 @@ void handle_hex(std::string str) {
                         c = (char) strtoul(tmp, NULL, 16);
                         break;
                     }else {
-                        std::cout << "Error undefined escape sequence " << str.substr(i-3, 4) << std::endl;
-                        return ;
+                        std::cout << "Error undefined escape sequence " << str.substr(i-2, 3) << std::endl;
+                        exit(0);
                     }
                 case '0':
                     std::cout << yylineno << " STRING " << str.substr(0, i) << std::endl;
@@ -48,22 +47,33 @@ void handle_hex(std::string str) {
                 case 't': c = '\t'; break;
                 case 'n': c = '\n'; break;
                 case '"': c = '\"'; break;
+                    if(str[i+1] == '\0'){
+                        std::cout << "Error unclosed string\n" << std::endl;
+                        exit(0);
+                    } else break;
                 case '\\': break;
-                default: {}
-                    std::cout << "Error undefined escape sequence " << str.substr(i-1, 2) << std::endl;
-                    return;
+                default: {
+                    std::cout << "Error undefined escape sequence " << str.substr(i, 2) << std::endl;
+                    exit(0);
+                }
             }
         }
         buffer[bf_itr] = c;
     }
     buffer[bf_itr] = '\0';
+
     std::cout << yylineno << " STRING " << buffer << std::endl;
 }
 
 
 
 void handle_strings() {
-    //remove " ":
+
+    if(strlen(yytext) == 2){
+        std::cout << yylineno << " STRING " << "" << std::endl;
+        return;
+    }
+
     char new_string[strlen(yytext) - 2];
     memcpy(new_string, &yytext[1], strlen(yytext) - 2);
     new_string[strlen(yytext) - 2] = '\0';
